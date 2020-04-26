@@ -1,0 +1,59 @@
+<html>
+
+<head>
+
+    <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="node_modules/@fortawesome/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+
+    <script src="node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+
+    <title>Todo App</title>
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="todolist not-done">
+                    <h1>Todos</h1>
+                    <input type="text" class="form-control add-todo" placeholder="Add todo">
+                    <button id="checkAll" class="btn btn-success" onclick="todoController.allDone()">Mark all as
+                        done</button>
+
+                    <hr>
+
+                    <ul id="sortable" class="list-unstyled"></ul>
+                    <div class="todo-footer">
+                        <strong><span class="count-todos"></span></strong> Items Left
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="todolist">
+                    <h1>Already Done</h1>
+                    <span class="glyphicon glyphicon-trash"></span>
+                    <ul id="done-items" class="list-unstyled done-item"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app/utils/Utils.js"></script>
+    <script src="app/model/Todo.js"></script>
+    <script src="app/model/BaseList.js"></script>
+    <script src="app/model/TodoList.js"></script>
+    <script src="app/model/DoneList.js"></script>
+
+    <script src="app/view/BaseView.js"></script>
+    <script src="app/view/TodoView.js"></script>
+    <script src="app/view/DoneView.js"></script>
+
+    <script src="app/controller/TodoController.js"></script>
+    <script>
+        let todoController = new TodoController();
+    </script>
+</body>
+
+</html>
