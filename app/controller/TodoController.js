@@ -82,25 +82,46 @@ class TodoController {
 
         }.bind(this));
 
+
+        //すでにDBにあるデータを読み込むメソッド
+        this.loadInitialData();
+
         this._updateTodosCount();
     }
 
     //TODO を追加する
     addTodo(inputValue) {
 
-        //inputValueを使ってTodoオブジェクトを作成
-        let todo = new Todo(inputValue, ++this.idCounter);
+        /**
+         //inputValueを使ってTodoオブジェクトを作成
+         let todo = new Todo(inputValue, ++this.idCounter);
+         
+         //作成したTodoオブジェクトを_todoListに追加
+         this._todoList.addTodo(todo);
+         
+         //画面にリストを表示
+         this._todoView.update(this._todoList.list);
+         
+         //インプットに入力されているものを消す。
+         this.inputTodo.value = '';
+         
+         this._updateTodosCount();
+        */
 
-        //作成したTodoオブジェクトを_todoListに追加
-        this._todoList.addTodo(todo);
+        let todo = new Todo(inputValue);
 
-        //画面にリストを表示
-        this._todoView.update(this._todoList.list);
+        //データベースと接続する
+        ConnectionFactory.getConnection()
+            //接続を使ってDAOを作成する
+            .then(con => new TodoDao(con))
+            //DAOを使ってDBに追加する
+            .then(dao => {
+                dao.add(todo)
+            })
+            .catch(error => {
+                alert(error);
+            });
 
-        //インプットに入力されているものを消す。
-        this.inputTodo.value = '';
-
-        this._updateTodosCount();
     }
 
 
@@ -157,6 +178,17 @@ class TodoController {
 
         this._countTodos.innerHTML = this._todoList.count;
 
+    }
+
+    //DBにすでにあるデータを呼び出す
+    loadInitialData() {
+        ConnectionFactory.getConnection()
+            .then(con => new TodoDao(con))
+            .then(dao => dao.getOpenTodos())
+            .then(todos => {
+                this._todoView.update(todos);
+            })
+            .catch(error => console.log(error));
     }
 
 }
