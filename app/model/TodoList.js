@@ -13,6 +13,10 @@ class TodoList extends BaseList {
         super.addTodo(todo);
     }
 
+    addAll(newList) {
+        super.addAll(newList);
+    }
+
     removeItem(todo) {
         super.removeItem(todo);
     }

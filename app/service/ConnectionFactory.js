@@ -10,7 +10,7 @@ const ConnectionFactory = (function () {
     const dbDisplayName = 'TodosDB';
 
     //DBバージョン
-    const dbVersion = 1;
+    const dbVersion = '1';
 
     //データベースとの接続を保持しておく
     let connection = null;
@@ -32,24 +32,28 @@ const ConnectionFactory = (function () {
                     //ここでエラーが出たら    
 
                     //データベースを開く
-                    connection = openDatabase(
-                        //名前
-                        dbName,
-
-                        //バージョン
-                        dbVersion,
-
-                        //表示する名前
-                        dbDisplayName,
-
-                        //DBサイズ
-                        dbSize
-                    );
-
+                    if(!connection) {
+                        connection = openDatabase(
+                            //名前
+                            dbName,
+    
+                            //バージョン
+                            dbVersion,
+    
+                            //表示する名前
+                            dbDisplayName,
+    
+                            //DBサイズ
+                            dbSize
+                        );
+    
+                    }
+                    
                     ConnectionFactory._migrateDb()
                         .then(resolve(connection))
                         .catch(error => { 
-                            throw new Error(error.message);
+                            console.log(error);
+                            throw error;
                         });
 
                 } catch (error) {
@@ -68,20 +72,10 @@ const ConnectionFactory = (function () {
             return new Promise((resolve, reject) => {
 
                 //SQLコマンドを保持する
-                let sql = '';
-
-                switch (dbVersion) {
-                    case 1:
-                        sql +=
-                            'CREATE TABLE IF NOT EXISTS todo(\
-                                id INTEGER PRIMARY KEY AUTOINCREMENT,\
-                                name TEXT,\
-                                status INTEGER DEFAULT 0)';
-                        break;
-
-                    default:
-                        throw new Error('不正データベースバージョンです、データベースバージョンをみなおしてください。')
-                }
+                let sql = 'CREATE TABLE IF NOT EXISTS todo(\
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,\
+                    name TEXT,\
+                    status INTEGER DEFAULT 0);';
 
                 //トランザクションを開く
                 connection.transaction(tx => {

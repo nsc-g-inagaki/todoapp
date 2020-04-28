@@ -38,4 +38,22 @@ class BaseList {
             this._list.splice(position, 1);
         }
     }
+
+    //パラメーターのリストのアイテムすべてを追加する
+    addAll(newList) {
+
+        //パターン１
+        //TODO adjust list logic
+        // newList.forEach(item => {
+        //     if (this._list.findIndex(todoItem => {
+        //        return isEquals(item, todoItem);
+        //     }) == -1){
+        //         this._list.push(item);
+        //     }
+        // });
+
+        //パターン 2
+        this.clearList();
+        this._list = newList;
+    }
 }

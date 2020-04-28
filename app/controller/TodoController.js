@@ -3,9 +3,6 @@ class TodoController {
     constructor() {
         const btnRemoveItemId = 'btn-delete-item';
 
-        //DBとの接続を行う前までのだんかいでとりあえず、TodoのIdを作っておいてくれる変数
-        this.idCounter = 0;
-
         //document.querySelectorの仮名を作る　
         let selector = document.querySelector.bind(document);
 
@@ -64,6 +61,7 @@ class TodoController {
             
         }.bind(this));
 
+        //Todo側のアイテムクリックを処理する
         this._ulTodos.addEventListener('click', function(event){
             event.preventDefault();
             console.log(event);
@@ -82,43 +80,96 @@ class TodoController {
 
         }.bind(this));
 
+        //画面が表示されたときに、DBからTodoを取得して表示する
+        this._displayOpenTodos();
+
+        //Todoの数を数えて表示する
         this._updateTodosCount();
+    }
+
+    //DBからTodoを取得して表示する
+    _displayOpenTodos() {
+        //DBとの接続
+        ConnectionFactory.getConnection()
+            //接続に成功したのでTodoDaoを作成する
+            .then(connection => new TodoDao(connection))
+            //DBからTODOのリストを読み込む
+            .then(dao => dao.fetchAllOpenTodo())
+            //TodoList(_todoList)に追加する
+            //画面に表示する (_todoView.update())
+            .then(list => {
+                //listの中身を一度_todoListに移す
+                this._todoList.addAll(list);
+
+                //画面に_todoListの中身を表示させる
+                this._todoView.update(this._todoList.list);
+            })
+            //エラーが発生したときの処理
+            .catch(error => {
+                console.log(error);
+                alert('エラーが発生しました。　ログを見てください');
+            });
+    }
+
+    _displayCompleteTodos() {
+        
     }
 
     //TODO を追加する
     addTodo(inputValue) {
 
         //inputValueを使ってTodoオブジェクトを作成
-        let todo = new Todo(inputValue, ++this.idCounter);
+        let todo = new Todo(inputValue);
 
-        //作成したTodoオブジェクトを_todoListに追加
-        this._todoList.addTodo(todo);
+        //DBに保存する
+        //DBとの接続
+        ConnectionFactory.getConnection()
+            //接続できたのでTodoDao を作成
+            .then(connection => new TodoDao(connection))
+            //TodoDAOを通して値を保存する
+            .then(dao => dao.storeTodo(todo))//TodoDAOの保存するメソッド 
+            // .then(this._displayOpenTodos())
+            //エラーが発生した場合
+            .catch(error => {
+                console.log(error);
+                alert('エラーが発生しました。　ログを見てください');
+            });
 
-        //画面にリストを表示
-        this._todoView.update(this._todoList.list);
+        //DBからTodoを取得して表示する
+        this._displayOpenTodos();
 
         //インプットに入力されているものを消す。
         this.inputTodo.value = '';
 
+        //Todoの数を数えて表示する
         this._updateTodosCount();
     }
 
 
     //TODOを一つ完了状態にする
     finishTask(taskId){
-        let item = this._todoList.findItemById(taskId);
 
-        if(item) {
-            this._todoList.removeItem(item);
+        //DBのtaskIdが一致するもののステータスを1に変更する
+        //DBと接続
+        ConnectionFactory.getConnection()
+            //接続ができたらTodoDaoを作る
+            .then(connection => new TodoDao(connection))
+            //TodoDaoを使ってステータスを更新
+            .then(dao => dao.completeTodo(taskId))
+            //エラーが発生したとき
+            .catch(error => {
+                console.log(error);
+                alert('エラーが発生しました。ログを見てください');
+            });
 
-            item.done();
 
-            this._doneList.addTodo(item);
+        //ステータスが０のリストを更新
+        this._displayOpenTodos();
 
-            this._todoView.update(this._todoList.list);
-            this._doneView.update(this._doneList.list);
-        }
+        //ステータスが１のリストを更新
+        this._displayCompleteTodos();
 
+        //Todoの数を数えて表示する
         this._updateTodosCount();
     }
 
